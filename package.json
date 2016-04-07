@@ -1,0 +1,18 @@
+{
+  "name": "login_service",
+  "version": "1.0.0",
+  "description": "Serviço de SignIn/SignUp para teste da Concrete Solutions",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "Cleber Castilho",
+  "dependencies": {
+    "body-parser": "^1.15.0",
+    "crypto-js": "^3.1.6",
+    "express": "^4.13.4",
+    "guid": "0.0.12",
+    "moment": "^2.12.0",
+    "mongoose": "^4.4.11"
+  }
+}
