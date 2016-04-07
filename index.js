@@ -13,11 +13,7 @@ database.config();
 
 //routes
 app.get('/', function(req, res){
-	var doc = {
-		tudoOk: "tudo certo na rota principal"
-	};
-
-	res.send(doc);
+	//TODO: uma documentação descrevendo a API
 });
 
 app.get('/api/usuario/obter/:id', function(req, res){
