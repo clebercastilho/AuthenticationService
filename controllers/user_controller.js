@@ -2,9 +2,10 @@
 module.exports = (function() {
 	
 	//modules
-	var util = require('./util');
-	var database = require('./dbConnection');
 	var moment = require('moment');
+	var util = require(rootDir + '/lib/util');
+	var database = require(rootDir + '/lib/db_model');
+	
 	
 	function validarNovoUsuario(body){
 		return body.nome && body.email && body.senha;
@@ -17,7 +18,8 @@ module.exports = (function() {
 	function criarNovoUsuario(body, callbackReq){
 
 		if(!validarNovoUsuario(body)){
-			callbackReq(util.generateErrorMessage("Há dados inválidos"));
+			var e = util.generateErrorMessage("Há dados inválidos");
+			callbackReq(util.getResponseData(400, e));
 			return;
 		}
 
@@ -37,25 +39,25 @@ module.exports = (function() {
 
 		database.getByEmail(novoUsuario.email, function(error, user){
 			if(error){
-				var obj = util.generateErrorMessage(error);
-				callbackReq(obj);
+				var e = util.generateErrorMessage(database.parseError(error));
+				callbackReq(util.getResponseData(400, e));
 				return;
 			}
 
 			if(user && user.email === novoUsuario.email){
-				var obj = util.generateErrorMessage("E-mail já existente.");
-				callbackReq(obj);
+				var e = util.generateErrorMessage("E-mail já existente");
+				callbackReq(util.getResponseData(400, e));
 				return;
 			}
 
 			database.save(novoUsuario, function(error){
 				if(error){
-					var obj = util.generateErrorMessage(error);
-					callbackReq(obj);
+					var e = util.generateErrorMessage(database.parseError(error));
+					callbackReq(util.getResponseData(400, e));
 					return;
 				}
 
-				callbackReq(novoUsuario);
+				callbackReq(util.getResponseData(200, novoUsuario));
 			});
 		});
 	}
@@ -63,64 +65,65 @@ module.exports = (function() {
 	function obterUsuario(id, tokenReq, callbackReq) {
 		database.getById(id, function(error, user){
 			if(error){
-				var obj = util.generateErrorMessage(error);
-				callbackReq(obj);
+				var e = util.generateErrorMessage(database.parseError(error));
+				callbackReq(util.getResponseData(400, e));
 				return;
 			}
 
 			if(!user){
-				var obj = util.generateErrorMessage("Usuário não encontrado");
-				callbackReq(obj);
+				var e = util.generateErrorMessage("Usuário não encontrado");
+				callbackReq(util.getResponseData(400, e));
 				return;
 			}
 
 			if(user.token !== tokenReq){
-				var obj = util.generateErrorMessage("Não autorizado");
-				callbackReq(obj);
+				var e = util.generateErrorMessage("Não autorizado");
+				callbackReq(util.getResponseData(401, e));
 				return;
 			}
 
 			var limiteSessao = moment().subtract(30, 'minutes');
 			if(limiteSessao.isAfter(user.ultimoLogin)){
-				var obj = util.generateErrorMessage("Sessão inválida");
-				callbackReq(obj);
+				var e = util.generateErrorMessage("Sessão inválida");
+				callbackReq(util.getResponseData(401, e));
 				return;
 			}
 
 
-			callbackReq(user);
+			callbackReq(util.getResponseData(200, user));
 		});
 	}
 
 	function autenticarUsuario(body, callbackReq){
 		if(!validarAutenticacao(body)){
-			callbackReq(util.generateErrorMessage("Há dados inválidos"));
+			var e = util.generateErrorMessage("Há dados inválidos")
+			callbackReq(util.getResponseData(400, e));
 			return;
 		}
 
 		database.getByEmail(body.email, function(error, user){
 			if(error){
-				var obj = util.generateErrorMessage(error);
-				callbackReq(obj);
+				var e = util.generateErrorMessage(database.parseError(error));
+				callbackReq(util.getResponseData(400, e));
 				return;
 			}
 
-			var encrypted = util.generateHash(senha);
-			if(!body.user || user.senha !== encrypted){
-				var obj = util.generateErrorMessage("Usuário e/ou senha inválidos");
-				callbackReq(obj);
+			var encrypted = util.generateHash(body.senha);
+			if(!user || user.senha !== encrypted){
+				var e = util.generateErrorMessage("Usuário e/ou senha inválidos");
+				callbackReq(util.getResponseData(401, e));
 				return;
 			}
 
 			user.ultimoLogin = moment();
 			database.updateLoginDate(user.id, user.ultimoLogin, function(error){
 				if(error){
-					var obj = util.generateErrorMessage(error);
-					callbackReq(obj);
+					var e = util.generateErrorMessage(database.parseError(error));
+					callbackReq(util.getResponseData(400, e));
 					return;
 				}
 
-				callbackReq(user);
+				callbackReq(util.getResponseData(200, user));
 			});
 		});
 	}

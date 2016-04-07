@@ -4,7 +4,8 @@
   "description": "Serviço de SignIn/SignUp para teste da Concrete Solutions",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "node node_modules/mocha/bin/mocha tests/*.js"
   },
   "author": "Cleber Castilho",
   "dependencies": {
@@ -14,5 +15,10 @@
     "guid": "0.0.12",
     "moment": "^2.12.0",
     "mongoose": "^4.4.11"
+  },
+  "devDependencies": {
+    "mocha": "^2.4.5",
+    "should": "^8.3.0",
+    "supertest": "^1.2.0"
   }
 }
