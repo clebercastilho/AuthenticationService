@@ -1,4 +1,4 @@
-var app = require('../index');
+var app = require('../build/index.min');
 var should = require('should');
 var request = require('supertest');
 
