@@ -5,16 +5,26 @@ var concat = require('gulp-concat');
 var rename = require('gulp-rename');
 
 
-var files = "./src/*.js";
+var jsFiles = "./src/*.js";
+var viewFiles = './views/**';
+var publicFiles = './public/**';
 
 gulp.task('lint', function() {
-	gulp.src(files)
+	gulp.src(jsFiles)
 		.pipe(jshint())
 		.pipe(jshint.reporter('default'));
 });
 
-gulp.task('build', function() {
-	gulp.src(files)
+gulp.task('viewsBuild', function() {
+	gulp.src(viewFiles)
+		.pipe(gulp.dest('./build/views'));
+
+	gulp.src(publicFiles)
+		.pipe(gulp.dest('./build/public'));
+});
+
+gulp.task('jsBuild', function() {
+	gulp.src(jsFiles)
 		.pipe(rename({
 		    suffix: ".min",
 	    	extname: ".js"
@@ -24,5 +34,5 @@ gulp.task('build', function() {
 });
 
 gulp.task('default', function() {
-	gulp.run('lint', 'build');
+	gulp.run('lint', 'viewsBuild', 'jsBuild');
 });

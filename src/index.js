@@ -7,7 +7,14 @@ var util = require('./util.min');
 
 //configuration
 var app = express();
+
 app.use(bodyParser.json());
+app.use(express.static(__dirname + '/public'));
+
+//set port for heroku
+app.set('port', (process.env.PORT || 4123));
+app.set('views', __dirname + '/views');
+app.set('view engine', 'ejs');
 
 //database config
 database.config();
@@ -15,7 +22,7 @@ database.config();
 
 //routes
 app.get('/', function(req, res){
-	res.send('API Login Service');
+	res.render('pages/index');
 });
 
 
@@ -51,8 +58,8 @@ app.post('/api/usuario/autenticar', function(req, res){
 });
 
 
-app.listen(4123, function(){
-	console.log("API iniciada na porta 4123, usando express.");
+app.listen(app.get('port'), function(){
+	console.log("API iniciada, usando express, na porta", app.get('port'));
 });
 
 
